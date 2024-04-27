@@ -2,18 +2,16 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
-	mySetting: string;
+interface TutorPluginSettings {
+	tag: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: TutorPluginSettings = {
+	tag: 'question'
 }
-
-const tag = 'question';
 
 export default class TutorPlugin extends Plugin {
-	settings: MyPluginSettings;
+	settings: TutorPluginSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -26,7 +24,8 @@ export default class TutorPlugin extends Plugin {
 				const questions = texts
 					.map(text => text.split("\n").filter(s => s.replace(" ", "").startsWith(">[!")))
 					.flat()
-					.map(q => q.split(`[!${tag}]`)[1].trimStart());
+					.map(q => q.split(`[!${this.settings.tag}]`)[1]?.trimStart())
+					.filter(callout => callout);
 				console.log(questions);
 			});
 		});
@@ -122,13 +121,13 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Callout tag')
+			.setDesc('Select a tag to filter questions')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('question')
+				.setValue(this.plugin.settings.tag)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.tag = value;
 					await this.plugin.saveSettings();
 				}));
 	}
