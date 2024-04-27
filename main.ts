@@ -27,7 +27,7 @@ export default class TutorPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_EXAMPLE,
-			(leaf) => new ExampleView(leaf)
+			(leaf) => new ExampleView(leaf, this.questions)
 		);
 
 		// This creates an icon in the left ribbon.
