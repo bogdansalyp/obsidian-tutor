@@ -22,8 +22,7 @@ export default class TutorPlugin extends Plugin {
 			const filePromises = this.app.vault.getMarkdownFiles().map(file => this.app.vault.cachedRead(file));
 			Promise.all(filePromises).then(texts => {
 				const questions = texts
-					.map(text => text.split("\n").filter(s => s.replace(" ", "").startsWith(">[!")))
-					.flat()
+					.flatMap(text => text.split("\n").filter(s => s.replace(" ", "").startsWith(">[!")))
 					.map(q => q.split(`[!${this.settings.tag}]`)[1]?.trimStart())
 					.filter(callout => callout);
 				console.log(questions);
