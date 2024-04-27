@@ -13,9 +13,17 @@ const DEFAULT_SETTINGS: TutorPluginSettings = {
 
 export default class TutorPlugin extends Plugin {
 	settings: TutorPluginSettings;
+	questions: string[];
 
 	async onload() {
 		await this.loadSettings();
+
+		const filePromises = this.app.vault.getMarkdownFiles().map(file => this.app.vault.cachedRead(file));
+		const texts = await Promise.all(filePromises);
+		this.questions = texts
+			.flatMap(text => text.split("\n").filter(s => s.replace(" ", "").startsWith(">[!")))
+			.map(q => q.split(`[!${this.settings.tag}]`)[1]?.trimStart())
+			.filter(callout => callout);
 
 		this.registerView(
 			VIEW_TYPE_EXAMPLE,
@@ -26,15 +34,8 @@ export default class TutorPlugin extends Plugin {
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			this.activateView();
-
-			const filePromises = this.app.vault.getMarkdownFiles().map(file => this.app.vault.cachedRead(file));
-			Promise.all(filePromises).then(texts => {
-				const questions = texts
-					.flatMap(text => text.split("\n").filter(s => s.replace(" ", "").startsWith(">[!")))
-					.map(q => q.split(`[!${this.settings.tag}]`)[1]?.trimStart())
-					.filter(callout => callout);
-				console.log(questions);
-			});
+			console.log(this.questions);
+			
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');

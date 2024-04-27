@@ -18,7 +18,7 @@ export class ExampleView extends ItemView {
   async onOpen() {
     const container = this.containerEl.children[1];
     container.empty();
-    container.createEl("h4", { text: "Example view" });
+    container.createEl("h4", { text: "Questions" });
   }
 
   async onClose() {
